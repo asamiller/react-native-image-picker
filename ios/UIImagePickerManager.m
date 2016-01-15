@@ -339,20 +339,8 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             }];
             return;
         }
-        
-        image = [self fixOrientation:image];  // Rotate the image for upload to web
-        
-        
 
-        // get the metadata from the photo
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-        [library assetForURL:imageURL resultBlock:^(ALAsset *asset) {
-            ALAssetRepresentation *rep = [asset defaultRepresentation];
-            NSDictionary *metadata = rep.metadata;
-            NSLog(@"%@", metadata);
-        } failureBlock:^(NSError *error) {
-            // error handling
-        }];
+        image = [self fixOrientation:image];  // Rotate the image for upload to web
 
         // If needed, downscale image
         float maxWidth = image.size.width;
@@ -388,6 +376,24 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         
         [response setObject:@(image.size.width) forKey:@"width"];
         [response setObject:@(image.size.height) forKey:@"height"];
+      
+        // get the metadata from the photo
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        [library assetForURL:imageURL resultBlock:^(ALAsset *asset) {
+          ALAssetRepresentation *rep = [asset defaultRepresentation];
+          
+          NSDictionary *metadata = rep.metadata;
+          [response setObject:metadata forKey:@"metadata"];
+          NSLog(@"%@", metadata);
+          
+          self.callback(@[response]);
+        } failureBlock:^(NSError *error) {
+          // error handling
+          self.callback(@[@{@"error": error.localizedFailureReason}]);
+        }];
+      
+        return;
+
     }
     else { // VIDEO
         NSURL *videoURL = info[UIImagePickerControllerMediaURL];
