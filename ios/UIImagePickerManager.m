@@ -343,6 +343,17 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
         image = [self fixOrientation:image];  // Rotate the image for upload to web
         
         
+
+        // get the metadata from the photo
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        [library assetForURL:imageURL resultBlock:^(ALAsset *asset) {
+            ALAssetRepresentation *rep = [asset defaultRepresentation];
+            NSDictionary *metadata = rep.metadata;
+            NSLog(@"%@", metadata);
+        } failureBlock:^(NSError *error) {
+            // error handling
+        }];
+
         // If needed, downscale image
         float maxWidth = image.size.width;
         float maxHeight = image.size.height;
