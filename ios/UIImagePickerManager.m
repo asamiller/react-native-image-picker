@@ -383,8 +383,19 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
           ALAssetRepresentation *rep = [asset defaultRepresentation];
           
           NSDictionary *metadata = rep.metadata;
-          [response setObject:metadata forKey:@"metadata"];
           NSLog(@"%@", metadata);
+          
+          if (metadata != nil) {
+            NSDictionary *metaoutput = @{
+              @"exif": [metadata valueForKey:@"{Exif}"],
+              @"exif_aux": [metadata valueForKey:@"{ExifAux}"],
+              @"gps": [metadata valueForKey:@"{GPS}"],
+              @"tiff": [metadata valueForKey:@"{TIFF}"],
+            };
+            
+            [response setObject:metaoutput forKey:@"metadata"];
+          }
+          
           
           self.callback(@[response]);
         } failureBlock:^(NSError *error) {
